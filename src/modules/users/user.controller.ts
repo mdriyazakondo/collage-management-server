@@ -8,7 +8,7 @@ const getAllUser = catchAsync(async (req, res) => {
   const result = await userSErvice.get_users(query);
   sendRespone(res, {
     success: true,
-    message: 'userr get success',
+    message: 'Users get success',
     statusCode: httpStatus.OK,
     data: result,
   });
@@ -32,7 +32,7 @@ const getUserById = catchAsync(async (req, res) => {
   const result = await userSErvice.userById(userId);
   sendRespone(res, {
     success: true,
-    message: 'Signle user successfully fetched',
+    message: 'Single user successfully fetched',
     statusCode: httpStatus.OK,
     data: result,
   });
@@ -55,7 +55,7 @@ const roleUpdate = catchAsync(async (req, res) => {
   const userData = await userSErvice.roleUpdate(userId, role);
   sendRespone(res, {
     success: true,
-    message: 'User  data deleted successfully',
+    message: 'User role updated successfully',
     statusCode: httpStatus.OK,
     data: userData,
   });
@@ -66,7 +66,7 @@ const userDelete = catchAsync(async (req, res) => {
   const userData = await userSErvice.userDelete(userId);
   sendRespone(res, {
     success: true,
-    message: 'User  data deleted successfully',
+    message: 'User data deleted successfully',
     statusCode: httpStatus.OK,
     data: userData,
   });

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongoose';
 
 export interface TBlog {
-  author: ObjectId;
+  author?: ObjectId;
   title: string;
   description: string;
   blog_type: string;

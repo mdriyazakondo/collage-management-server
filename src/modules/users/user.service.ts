@@ -1,25 +1,54 @@
-import QueryBuilder from '../../app/bluider/queryBuilder';
+import { number } from 'zod';
 import { TUser } from '../auth/auth.interface';
 import { UserModel } from '../auth/auth.model';
+import { TGetUsersQuery } from './user.interface';
 
-const get_users = async (query: Record<string, unknown>) => {
-  const courseQuery = new QueryBuilder(UserModel, query)
-    .search(['title', 'description'])
-    .filter()
-    .sort()
-    .paginate()
-    .fields()
-    .populate({
-      path: 'Course',
-    })
-    .populate([
-      {
-        path: 'ModuleDetails',
-      },
-    ]);
+const get_users = async (query: TGetUsersQuery) => {
+  const search = query.search;
+  const role = query.role;
+  const isActive = query.isActive;
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
 
-  const result = await courseQuery.exec();
-  return result;
+  const skip = (page - 1) * limit;
+
+  const pipeline: any[] = [];
+
+  const matchStage: any = {};
+
+  if (search) {
+    matchStage.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+      { phone: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  if (role) {
+    matchStage.role = role;
+  }
+
+  if (isActive !== undefined) {
+    matchStage.isActive = isActive;
+  }
+
+  if (Object.keys(matchStage).length > 0) {
+    pipeline.push({ $match: matchStage });
+  }
+
+  pipeline.push({ $sort: { createdAt: -1 } });
+
+  pipeline.push({
+    $facet: {
+      data: [{ $skip: skip }, { $limit: limit }],
+      totalData: [{ $count: 'total' }],
+    },
+  });
+
+  const result = await UserModel.aggregate(pipeline);
+
+  const data = result[0]?.data || [];
+  return data;
 };
 
 const teacherService = async (role: string) => {
