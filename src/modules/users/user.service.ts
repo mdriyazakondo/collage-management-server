@@ -6,7 +6,12 @@ import { TGetUsersQuery } from './user.interface';
 const get_users = async (query: TGetUsersQuery) => {
   const search = query.search;
   const role = query.role;
-  const isActive = query.isActive;
+  const isActive =
+    query.isActive === 'true'
+      ? true
+      : query.isActive === 'false'
+        ? false
+        : undefined;
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
 

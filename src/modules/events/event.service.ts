@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import AppError from '../../app/error/AppError';
-import { TEvents } from './event.interface';
+import { TEvents, TGetEventsQuery } from './event.interface';
 import { eventModel } from './event.model';
 
 const eventCreate = async (payload: TEvents) => {
@@ -12,9 +12,59 @@ const eventCreate = async (payload: TEvents) => {
   return result;
 };
 
-const get_all_events = async () => {
-  const result = await eventModel.find();
-  return result;
+export const get_all_events = async (query: TGetEventsQuery) => {
+  const { search, status, sort, page = '1', limit = '6' } = query;
+
+  const filter: any = {};
+
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+      { location: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  // 🏷️ Status filter
+  if (status) {
+    filter.status = status;
+  }
+
+  // 🔃 Sort
+  let sortCondition: any = { createdAt: -1 }; // default latest
+
+  if (sort === 'date-asc') {
+    sortCondition = { date: 1 };
+  }
+
+  if (sort === 'date-desc') {
+    sortCondition = { date: -1 };
+  }
+
+  if (sort === 'title') {
+    sortCondition = { title: 1 };
+  }
+
+  // 📄 Pagination
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const events = await eventModel
+    .find(filter)
+    .sort(sortCondition)
+    .skip(skip)
+    .limit(Number(limit));
+
+  const total = await eventModel.countDocuments(filter);
+
+  return {
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    },
+    data: events,
+  };
 };
 
 const getEventById = async (_id: string) => {

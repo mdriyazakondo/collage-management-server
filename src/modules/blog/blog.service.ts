@@ -1,4 +1,4 @@
-import { TBlog } from './blog.interface';
+import { TBlog, TGetBlogsQuery } from './blog.interface';
 import { BlogModel } from './blog.model';
 
 const blog_create = async (payload: TBlog) => {
@@ -6,9 +6,46 @@ const blog_create = async (payload: TBlog) => {
   return result;
 };
 
-const get_all_blog = async () => {
-  const result = await BlogModel.find();
-  return result;
+const get_all_blog = async (query: TGetBlogsQuery) => {
+  const { search, blog_type, sort, page = '1', limit = '6' } = query;
+
+  const filter: any = {};
+
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  if (blog_type) {
+    filter.blog_type = blog_type;
+  }
+
+  let sortCondition: any = { createdAt: -1 };
+
+  if (sort === 'title') {
+    sortCondition = { title: 1 };
+  }
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const blogs = await BlogModel.find(filter)
+    .sort(sortCondition)
+    .skip(skip)
+    .limit(Number(limit));
+
+  const total = await BlogModel.countDocuments(filter);
+
+  return {
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    },
+    data: blogs,
+  };
 };
 
 const get_blog_by_id = async (_id: string) => {

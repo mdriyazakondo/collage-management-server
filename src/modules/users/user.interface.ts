@@ -1,7 +1,7 @@
 export type TGetUsersQuery = {
   search?: string;
   role?: string;
-  isActive?: boolean;
-  page?: number;
-  limit?: number;
+  isActive?: string;
+  page?: string;
+  limit?: string;
 };

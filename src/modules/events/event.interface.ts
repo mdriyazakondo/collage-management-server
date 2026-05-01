@@ -10,3 +10,12 @@ export interface TEvents {
   image?: string;
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
 }
+
+export type TGetEventsQuery = {
+  search?: string;
+  status?: string;
+  sort?: string;
+  page?: string;
+  limit?: string;
+  eventType?: string;
+};

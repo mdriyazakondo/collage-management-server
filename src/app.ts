@@ -8,7 +8,7 @@ app.use(
   cors({
     origin: [
       'http://localhost:3000',
-      'https://collage-management-nzgx.vercel.app/',
+      'https://accounting-department-frontend.vercel.app',
     ],
     credentials: true,
   }),

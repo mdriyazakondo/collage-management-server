@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import AppError from '../../app/error/AppError';
-import { TCampus } from './campus.interface';
+import { TCampus, TGetCampusQuery } from './campus.interface';
 import { CampusModel } from './campus.model';
 
 const create_campus = async (payload: TCampus) => {
@@ -11,15 +11,51 @@ const create_campus = async (payload: TCampus) => {
   return campus_data;
 };
 
-const get_all_campus = async () => {
-  const campus_data = await CampusModel.find();
-  if (!campus_data) {
-    throw new AppError(
-      StatusCodes.BAD_REQUEST,
-      'Campus Data is database not found',
-    );
+const get_all_campus = async (query: TGetCampusQuery) => {
+  const { search, sort, page = '1', limit = '6' } = query;
+
+  const filter: any = {};
+
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+      { location: { $regex: search, $options: 'i' } },
+    ];
   }
-  return campus_data;
+
+  let sortCondition: any = { createdAt: -1 };
+
+  if (sort === 'date-asc') {
+    sortCondition = { date: 1 };
+  }
+
+  if (sort === 'date-desc') {
+    sortCondition = { date: -1 };
+  }
+
+  if (sort === 'title') {
+    sortCondition = { title: 1 };
+  }
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const campus = await CampusModel.find(filter)
+    .sort(sortCondition)
+    .skip(skip)
+    .limit(Number(limit));
+
+  const total = await CampusModel.countDocuments(filter);
+
+  return {
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    },
+    data: campus,
+  };
 };
 
 const get_by_id_campus = async (id: string) => {

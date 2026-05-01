@@ -6,3 +6,10 @@ export interface TCampus {
   date: string;
   location: string;
 }
+
+export type TGetCampusQuery = {
+  search?: string;
+  sort?: string;
+  page?: string;
+  limit?: string;
+};

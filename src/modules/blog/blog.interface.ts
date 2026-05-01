@@ -7,3 +7,11 @@ export interface TBlog {
   blog_type: string;
   image?: string[];
 }
+
+export type TGetBlogsQuery = {
+  search?: string;
+  blog_type?: string;
+  sort?: string;
+  page?: string;
+  limit?: string;
+};

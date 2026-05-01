@@ -16,11 +16,11 @@ const event_create_data = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllEvnets = catchAsync(async (req: Request, res: Response) => {
-  const result = await event_service.get_all_events();
+  const result = await event_service.get_all_events(req.query);
   sendRespone(res, {
     success: true,
     message: 'All Recipes fatched successfully',
-    data: result,
+    data: result.data,
     statusCode: httpStatus.OK,
   });
 });

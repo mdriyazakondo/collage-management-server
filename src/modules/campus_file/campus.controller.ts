@@ -14,10 +14,10 @@ const create_campus_data = catchAsync(async (req, res) => {
 });
 
 const campusAllData = catchAsync(async (req, res) => {
-  const campusData = await campusService.get_all_campus();
+  const campusData = await campusService.get_all_campus(req.query);
   sendRespone(res, {
     success: true,
-    message: 'Campuss fatched Succesfully',
+    message: 'Campuss fetched Succesfully',
     data: campusData,
     statusCode: httpStatus.OK,
   });

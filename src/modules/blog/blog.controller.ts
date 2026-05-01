@@ -14,11 +14,11 @@ const create_blog = catchAsync(async (req, res) => {
 });
 
 const getAllBlog = catchAsync(async (req, res) => {
-  const result = await blogService.get_all_blog();
+  const result = await blogService.get_all_blog(req.query);
 
   sendRespone(res, {
     success: true,
-    message: 'All blog fatched successfully',
+    message: 'All blog fetched successfully',
     data: result,
     statusCode: httpStatus.OK,
   });
